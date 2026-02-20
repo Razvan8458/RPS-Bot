@@ -1,0 +1,4 @@
+{
+	"name": "Rock Paper Scissors",
+	"image": "mcr.microsoft.com/devcontainers/python:3.12"
+}

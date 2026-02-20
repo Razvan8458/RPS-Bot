@@ -1,0 +1,8 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install numpy and scikit-learn required by the project.
+    command: |
+      pip install numpy scikit-learn
+    triggeredBy:
+      - postDevcontainerStart
