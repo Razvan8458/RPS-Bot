@@ -48,18 +48,25 @@ def agent_2():
     random_list = [0, 1, 2]
     output = random.choice(random_list)
     return output
-def agent_3(opponent_history=[]):
+def agent_3(history=[]):
     # The third agent predicts the opponent will play the same move as the last
-    return opponent_history[-1]
-def agent_4(opponent_history=[]):
+    # played by the opponent / me
+    if len(history) < 1:
+        return agent_2()
+    return history[-1]
+def agent_4(history=[]):
     # The fourth agent predicts the opponent will play the move that counters
-    # the opponents last move
-    return transform(counter[opponent_history[-1]])
-def agent_5(opponent_history=[]):
+    # the opponents / my last move
+    if len(history) < 1:
+        return agent_2()
+    return transform(counter[history[-1]])
+def agent_5(history=[]):
     # The fifth agent predicts the opponent will play the move that is counter
-    # by the opponents last move
+    # by the opponents / my last move
     # That is equivelant to the the move that counters the counter of the move
-    return transform(counter[transform(counter[opponent_history[-1]])])
+    if len(history) < 1:
+        return agent_2()
+    return transform(counter[transform(counter[history[-1]])])
 def agent_6(state = {}, opponent_history=[], my_history=[]):
     # The sixth agent predicts the move of the opponent based on a markov chain
     # the markov chain uses my last move and the last two moves of the opponent
@@ -94,8 +101,8 @@ def player(prev_play, state = {}, my_history=[], opponent_history=[]):
     if not state:
         state['first_time'] = 1
         state['model'] = SGDClassifier(random_state = 42)
-        state['nr_correct'] = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-        state['outputs'] = [-2, -2, -2, -2, -2, -2]
+        state['nr_correct'] = [0.5] * 9
+        state['outputs'] = [-2] * 9
         state['markov_chain'] = [[0 for i in range(3)] for j in range(27)]
     output_1 = agent_1(state, my_history, opponent_history)
     output_2 = agent_2()
@@ -103,9 +110,12 @@ def player(prev_play, state = {}, my_history=[], opponent_history=[]):
     output_4 = agent_4(opponent_history)
     output_5 = agent_5(opponent_history)
     output_6 = agent_6(state, opponent_history, my_history)
+    output_7 = agent_3(my_history)
+    output_8 = agent_4(my_history)
+    output_9 = agent_5(my_history)
 
     best_one = 0
-    for i in range(0,6):
+    for i in range(0,9):
         ok = 0
         if state['outputs'][i] == transform(prev_play):
             # this means the agent would have guessed correctly last time
@@ -116,7 +126,7 @@ def player(prev_play, state = {}, my_history=[], opponent_history=[]):
             best_one = i
         # i make a corectness stat for each agent
         # once again, i make it have a decay for former correct moves
-    state['outputs'] = [output_1, output_2, output_3, output_4, output_5, output_6]
+    state['outputs'] = [output_1, output_2, output_3, output_4, output_5, output_6, output_7, output_8, output_9]
     if len(opponent_history) < 10:
         # for the first ten moves i let only the random agent choose
         output = output_2
